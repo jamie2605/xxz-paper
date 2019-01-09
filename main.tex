@@ -46,8 +46,8 @@
 	This approach can be generalized to scan a phase diagram by a sliding window approach\cite{Broecker2017}. Two points $\lambda_1$, $\lambda_2$ within the phase diagram are selected and are proposed to lie within two different phases. A classifier is trained on these two points and the response $p$ when predicting the class of the test data between the 2 training points is recorded. We quantify the probability $P$ that the two points $\lambda_1$ and $\lambda_2$ lie in 2 different phases, i.e. there is a phase transition between the two points as
 	
 	\begin{equation}
-		 P = 2\frac{\int_{\lambda_1}^{\lambda_2} d\lambda |p(\lambda) - 0.5|}{\lambda_2-\lambda_1}
-		 \label{eq:P}
+	P = 2\frac{\int_{\lambda_1}^{\lambda_2} d\lambda |p(\lambda) - 0.5|}{\lambda_2-\lambda_1}
+	\label{eq:P}
 	\end{equation}
 	
 	By scanning the full phase diagram, training a classifier for every point of the discretized space, $P$ displays phase outlines.
@@ -60,21 +60,23 @@
 	\subsection{Application of the unsupervised confusion scheme \\ to the XXZ model}
 	We simulate the XXZ model's ground state using Matrix Product states\cite{Schollwoeck2011} using the two-site variational ground state search as implemented in the OpenMPS library\cite{Jaschke2018, Wall2012}. The Hamiltonian \ref{eq:xxz} is formulated as Matrix Product Operator for a grid of ($h_x$, $\Delta$) values and the corresponding correlation matrix $\braket{\sigma^i_z\sigma^j_z}$ is recorded.
 	
-	The machine learning model we use as classifier is a feed-forward, fully connected neural network with just one hidden layer of 100 neurons. Neural networks with more degrees of freedom did not improve the results. The classifier was not trained directly on the simulated correlation matrices, but on the discrete correlation functions $f(r) = \braket{\sigma^i_z\sigma^{i+r}_z}$.
+	The machine learning model that is used as classifier is a feed-forward, fully connected neural network with just one hidden layer of 100 neurons. Neural networks with more degrees of freedom did not improve the results. The classifier was not trained directly on the simulated correlation matrices, but on the discrete correlation functions $f(r) = \braket{\sigma^i_z\sigma^{i+r}_z}$.
 	
 	\begin{figure}[h]
 		\includegraphics[width=\columnwidth]{3_5_ConfusionPhaseDiagram2D_1_20181214}
 		\caption{Application of the confusion scheme to the XXZ model. The scan direction was parallel to the $\Delta$ axis and the window width was set to 0.5. The black line overlay corresponds found using mean field theory\cite{Dmitriev2002}. $P$ corresponds to the probability defined in \ref{eq:P}}
 		\label{fig:confusion}
 	\end{figure}
-
-	The results of the confusion scheme are presented in \ref{fig:confusion}. We only present the scan parallel to the $\Delta$ axis as the scan parallel to the $h_x$  axis could not reveal any structure parallel to that axis. The two phases for $\Delta = 0$ and high $\Delta$ - values are separated by a crossover. Since the window width is only 0.5, the classifier is not able to reliably discriminate the two phases. But even when increasing the window width to 2, P did not increase at $\Delta=1$.
+	
+	The results of the confusion scheme are presented in \ref{fig:confusion}. We only present the scan parallel to the $\Delta$ axis as the scan parallel to the $h_x$  axis could not reveal any structure parallel to that axis. The two phases for $\Delta = 0$ and high $\Delta$ - values are separated by a crossover. Since the window width is only 0.5, the classifier is not able to reliably discriminate the two phases. But even when increasing the window width to 2, P did not increase along the line $\Delta=1$.
 	
 	\section{Weakly supervised learning \\ via asymptotic limits}
-	\begin{itemize}
-		\item Introduce new approach, which is conceptionally simpler
-	\end{itemize}
-	\blindtext[2]
+	The sliding window approach of the confusion scheme only considers a small local subset of the training data within the phase diagram for each of the trained classifiers.
+	Since a classifier generally performs better with additional training points - given that the new points are labeled correctly and the model is not yet saturated with the existing training data \cite{}- a more global approach could provide better results.
+	
+	We therefore introduce a new method for automatic phase detection. We assume that the asymptotic behavior of the system is known and propose an initial guess of the phases. In the case of the XXZ model, for example, we assume 4 distinct phases for ($h_x=0$, $\Delta=0$), ($h_x=0$, $\Delta\rightarrow\infty$), ($h_x=0$, $\Delta\rightarrow -\infty$) and ($h_x=0$, $\Delta\rightarrow\infty$). We now train a single classifier for the entire phase diagram. We employ a very similar model and as in the previous approach, the only difference being that the output layer contains 4 neurons, each one trained to respond to the 4 phases proposed by asymptotic considerations.
+	
+	As training data, we still use the same correlation functions, but we select 4 subsets of the data in proximity of the 4 proposed phases and apply a different label to each subset. We the interpret the neuron response when inferring on the remaining correlation functions as phase diagram. 
 	
 	
 	
